@@ -1,0 +1,43 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: response1
+spec:
+  schedule: "*/2 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: response1
+            image: docker.repo1.uhc.com/response1
+            imagePullPolicy: IfNotPresent
+            command:
+            - /bin/sh
+            - -c
+            - date; echo "Hello from the Kubernetes cluster"
+            securityContext:
+              runAsUser: 1000
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop:
+                - KILL
+                - MKNOD
+                - SYS_CHROOT
+            resources:
+              requests:
+                memory: "500Mi"
+                cpu: "250m"
+              limits:
+                memory: "1000Mi"
+                cpu: "500m"
+            readinessProbe:
+              exec:
+                command:
+                - /bin/true
+            livenessProbe:
+              exec:
+                command:
+                - /bin/true
+          restartPolicy: OnFailure
